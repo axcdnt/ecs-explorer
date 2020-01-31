@@ -55,11 +55,19 @@ func serviceNames(env, code, services string) []*string {
 	names := strings.Split(services,",")
 	var result []*string
 	for _, name := range names {
-		fullName := fmt.Sprintf("%s-%s-%s", name, env, code)
+		fullName := formatName(name, env, code)
 		result = append(result,  aws.String(fullName))
 	}
 
 	return result
+}
+
+func formatName(name, env, code string) string {
+	if env == "prod" {
+		return fmt.Sprintf("%s", name)
+	}
+
+	return fmt.Sprintf("%s-%s-%s", name, env, code)
 }
 
 func newSession() *session.Session {
