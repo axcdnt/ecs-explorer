@@ -20,13 +20,12 @@ var (
 
 func main() {
 	cluster := flag.String("cluster", "qa", "the cluster name")
-	env := flag.String("env", "", "the environment: qa/prod")
-	code := flag.String("code", "", "the environment code (only needed for qa)")
-	services := flag.String("services", "", "comma separated list of services (max of 10)")
+	suffix := flag.String("suffix", "", "the service name suffix to look for")
+	services := flag.String("services", "", "a comma separated list of services (max of 10)")
 
 	flag.Parse()
 
-	serviceNames := serviceNames(*env, *code, *services)
+	serviceNames := serviceNames(*suffix, *services)
 	config := newConfig(cluster, serviceNames)
 	result := listServicesData(config)
 
@@ -51,23 +50,15 @@ func prettyPrint(serviceName, status string, desired, running int64) {
 	}
 }
 
-func serviceNames(env, code, services string) []*string {
+func serviceNames(suffix, services string) []*string {
 	names := strings.Split(services,",")
 	var result []*string
 	for _, name := range names {
-		fullName := formatName(name, env, code)
+		fullName := strings.Trim(fmt.Sprintf("%s%s", name, suffix), "")
 		result = append(result,  aws.String(fullName))
 	}
 
 	return result
-}
-
-func formatName(name, env, code string) string {
-	if env == "prod" {
-		return fmt.Sprintf("%s", name)
-	}
-
-	return fmt.Sprintf("%s-%s-%s", name, env, code)
 }
 
 func newSession() *session.Session {
