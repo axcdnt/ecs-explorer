@@ -1,15 +1,15 @@
 # ecs-explorer
 
 ## What is ecs-explorer?
-This is a small project to simplify read-only tasks from an ECS cluster perspective.
-If you, like me, have multiple clusters and from time to time need to check services availability, this might help you.
+This is a small project to simplify read-only tasks for an AWS ECS cluster.
+If you, like me, have multiple clusters and from time to time need to check services _availability_, this might help you.
 
 
 ## Motivation
 The idea behind ecs-explorer is to give a flexible and colorized output perspective of your cluster. 
-I created it because I enjoy CLI apps and I wanted to explore AWS ECS sdk.
+I created it because I enjoy CLI apps and I wanted to explore [AWS ECS SDK](https://docs.aws.amazon.com/sdk-for-go/api/index.html).
 
-It has served as an instructional code session to explain Go code for a few friends.
+I also used the codebase as an instructional code session to explain Go for a group of friends.
 
 ## How to
 
@@ -20,24 +20,20 @@ Usage:
 Usage of ./ecs-utils:
   -cluster string
     	the cluster name (default "qa")
-  -code string
-    	the environment code (only needed for qa)
-  -env string
-    	the environment: qa/prod
   -services string
-    	comma separated list of services (max of 10)
+    	a comma separated list of services (max of 10)
+  -suffix string
+    	the service name suffix to look for
 ```
 
 Output:
 
 ```
-▶ ./ecs-utils --cluster=ecs-<cluster-name> --services=<service1,service2,service3> --env=<prod,qa>
+▶ ./ecs-utils --cluster=ecs-<cluster-name> --services=<service1,service2,service3> --suffix=-foo
 
-service1: status ACTIVE, desired: 1, running: 1
-service2: status ACTIVE, desired: 1, running: 1
-service3: status INACTIVE, desired: 0, running: 0
+service1-foo: status ACTIVE, desired: 1, running: 1
+service2-foo: status ACTIVE, desired: 1, running: 1
+service3-foo: status INACTIVE, desired: 0, running: 0
 ```
-
-Notice that, today, the `--env` param supports prod/qa as environments. It was my specific need, but can be easily adapted.
 
 I hope you enjoy it!
