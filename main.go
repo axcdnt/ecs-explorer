@@ -8,11 +8,11 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/axcdnt/ecs-utils/services"
+	"github.com/axcdnt/ecs-explorer/services"
 )
 
 func main() {
-	clusterFlag := flag.String("cluster", "qa", "the cluster name")
+	clusterFlag := flag.String("cluster", "", "the cluster name")
 	suffixFlag := flag.String("suffix", "", "the service name suffix to look for")
 	servicesFlag := flag.String("services", "", "a comma separated list of services (max of 10)")
 
@@ -50,3 +50,4 @@ func awsSession() *session.Session {
 
 	return session
 }
+

@@ -1,4 +1,4 @@
-module github.com/axcdnt/ecs-utils
+module github.com/axcdnt/ecs-explorer
 
 go 1.13
 
