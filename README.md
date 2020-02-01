@@ -1,4 +1,5 @@
 # ecs-explorer
+[![CircleCI Build Status](https://circleci.com/gh/axcdnt/ecs-explorer/tree/master.svg?style=shield)](https://circleci.com/gh/axcdnt/ecs-explorer/tree/master)
 
 ## What is ecs-explorer?
 This is a small project to simplify read-only tasks for an AWS ECS cluster.
@@ -16,8 +17,8 @@ I also used the codebase as an instructional code session to explain Go for a gr
 Usage:
 
 ```
-▶ ./ecs-utils --help
-Usage of ./ecs-utils:
+▶ ./ecs-explorer --help
+Usage of ./ecs-explorer:
   -cluster string
     	the cluster name (default "qa")
   -services string
@@ -29,7 +30,7 @@ Usage of ./ecs-utils:
 Output:
 
 ```
-▶ ./ecs-utils --cluster=ecs-<cluster-name> --services=<service1,service2,service3> --suffix=-foo
+▶ ./ecs-explorer --cluster=ecs-<cluster-name> --services=<service1,service2,service3> --suffix=-foo
 
 service1-foo: status ACTIVE, desired: 1, running: 1
 service2-foo: status ACTIVE, desired: 1, running: 1
