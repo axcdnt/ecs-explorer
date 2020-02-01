@@ -8,7 +8,7 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/axcdnt/ecs-utils/services"
+	"github.com/axcdnt/ecs-explorer/services"
 )
 
 func main() {
