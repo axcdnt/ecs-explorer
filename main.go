@@ -13,9 +13,9 @@ import (
 )
 
 var (
-	runningStatus     = color.New(color.FgGreen)
+	runningStatus      = color.New(color.FgGreen)
 	establishingStatus = color.New(color.FgYellow)
-	stoppedStatus     = color.New(color.FgHiRed)
+	stoppedStatus      = color.New(color.FgHiRed)
 )
 
 func main() {
@@ -43,7 +43,7 @@ func main() {
 func prettyPrint(serviceName, status string, desired, running int64) {
 	if status == "ACTIVE" && desired == running {
 		runningStatus.Printf("%s: status %s, desired: %d, running: %d\n", serviceName, status, desired, running)
-	} else if status == "ACTIVE"  && desired != running || (status == "DRAINING") {
+	} else if status == "ACTIVE" && desired != running || (status == "DRAINING") {
 		establishingStatus.Printf("%s: status %s, desired: %d, running: %d\n", serviceName, status, desired, running)
 	} else if status == "INACTIVE" && desired == running {
 		stoppedStatus.Printf("%s: status %s, desired: %d, running: %d\n", serviceName, status, desired, running)
@@ -51,11 +51,11 @@ func prettyPrint(serviceName, status string, desired, running int64) {
 }
 
 func serviceNames(suffix, services string) []*string {
-	names := strings.Split(services,",")
+	names := strings.Split(services, ",")
 	var result []*string
 	for _, name := range names {
 		fullName := strings.Trim(fmt.Sprintf("%s%s", name, suffix), "")
-		result = append(result,  aws.String(fullName))
+		result = append(result, aws.String(fullName))
 	}
 
 	return result
@@ -100,7 +100,7 @@ func listServicesData(config *ecs.DescribeServicesInput) *ecs.DescribeServicesOu
 	return result
 }
 
-func newConfig(cluster *string, services []*string) *ecs.DescribeServicesInput{
+func newConfig(cluster *string, services []*string) *ecs.DescribeServicesInput {
 	return &ecs.DescribeServicesInput{
 		Cluster:  cluster,
 		Services: services,
