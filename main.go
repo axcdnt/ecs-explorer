@@ -18,6 +18,8 @@ func main() {
 
 	flag.Parse()
 
+	validateFlags(*clusterFlag, *suffixFlag, *servicesFlag)
+
 	session := awsSession()
 	serviceNames := parseServiceNames(*suffixFlag, *servicesFlag)
 
@@ -51,3 +53,16 @@ func awsSession() *session.Session {
 	return session
 }
 
+func validateFlags(clusterFlag, suffixFlag, servicesFlag string) {
+	if len(clusterFlag) == 0 {
+		log.Fatalln("missing flag: -cluster")
+	}
+
+	if len(suffixFlag) == 0 {
+		log.Fatalln("missing flag: -suffix")
+	}
+
+	if len(servicesFlag) == 0 {
+		log.Fatalln("missing flag: -services")
+	}
+}

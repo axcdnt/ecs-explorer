@@ -2,6 +2,8 @@ package services
 
 import (
 	"fmt"
+	"log"
+
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ecs"
@@ -60,6 +62,9 @@ func (e *EcsService) describe() *ecs.DescribeServicesOutput {
 				fmt.Println(ecs.ErrCodeInvalidParameterException, aerr.Error())
 			case ecs.ErrCodeClusterNotFoundException:
 				fmt.Println(ecs.ErrCodeClusterNotFoundException, aerr.Error())
+			case ecs.ErrCodeAccessDeniedException:
+				// this is possible a frequent error
+				log.Fatalln("an error occurred while trying to access aws: invalid credentials or related")
 			default:
 				fmt.Println(aerr.Error())
 			}
