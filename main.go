@@ -13,7 +13,7 @@ import (
 func main() {
 	clusterFlag := flag.String("cluster", "", "the cluster name")
 	suffixFlag := flag.String("suffix", "", "the service name suffix to look for")
-	servicesFlag := flag.String("services", "", "a comma separated list of services (max of 10)")
+	servicesFlag := flag.String("services", "", "a comma separated list of services")
 
 	flag.Parse()
 

@@ -20,9 +20,9 @@ Usage:
 ▶ ./ecs-explorer --help
 Usage of ./ecs-explorer:
   -cluster string
-    	the cluster name (default "qa")
+    	the cluster name
   -services string
-    	a comma separated list of services (max of 10)
+    	a comma separated list of services
   -suffix string
     	the service name suffix to look for
 ```
