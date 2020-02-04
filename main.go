@@ -22,7 +22,7 @@ func main() {
 	session := awsSession()
 	serviceNames := parseServiceNames(*suffixFlag, *servicesFlag)
 	// aws limits the query in 10 services/request
-	queries := sliceIn(serviceNames, 10)
+	queries := partitionIn(serviceNames, 10)
 
 	// to be improved: run the queries in parallel
 	for _, query := range queries {
@@ -72,11 +72,11 @@ func validateFlags(clusterFlag, suffixFlag, servicesFlag string) {
 }
 
 // this function makes partitions of a slice based on the desired size
-func sliceIn(services []*string, sliceSize int) [][]*string {
-	numOfSlices := len(services) / sliceSize
+func partitionIn(services []*string, size int) [][]*string {
+	numOfSlices := len(services) / size
 	var allSlices [][]*string
 	start := 0
-	end := sliceSize
+	end := size
 
 	for i := 0; i < numOfSlices; i++ {
 		slice := services[start:end]
@@ -85,7 +85,7 @@ func sliceIn(services []*string, sliceSize int) [][]*string {
 		end += 10
 	}
 
-	lastSlice := services[numOfSlices*sliceSize:]
+	lastSlice := services[numOfSlices*size:]
 	if len(lastSlice) > 0 {
 		// corner case to avoid empty slices
 		allSlices = append(allSlices, lastSlice)

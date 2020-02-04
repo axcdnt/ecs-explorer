@@ -10,8 +10,9 @@ import (
 )
 
 var (
-	runningStatus      = color.New(color.FgGreen)
-	establishingStatus = color.New(color.FgYellow)
+	activeStatus       = color.New(color.FgGreen)
+	deactivatingStatus = color.New(color.FgYellow)
+	inactiveStatus     = color.New(color.FgMagenta)
 	stoppedStatus      = color.New(color.FgHiRed)
 )
 
@@ -22,7 +23,7 @@ type EcsService struct {
 	Session  *session.Session
 }
 
-// Query writes to a channel all data returned from a service
+// Query list services according to params
 func (e *EcsService) Query() {
 	svcs := e.describe().Services
 	for _, svc := range svcs {
@@ -37,12 +38,19 @@ func (e *EcsService) Query() {
 
 // to be improved
 func prettyPrint(serviceName, status string, desired, running int64){
-	if status == "ACTIVE" && desired == running {
-		runningStatus.Printf("%s: status %s, desired: %d, running: %d\n", serviceName, status, desired, running)
-	} else if status == "ACTIVE" && desired != running || (status == "DRAINING") {
-		establishingStatus.Sprintf("%s: status %s, desired: %d, running: %d\n", serviceName, status, desired, running)
-	} else if status == "INACTIVE" && desired == running {
-		stoppedStatus.Sprintf("%s: status %s, desired: %d, running: %d\n", serviceName, status, desired, running)
+	message := fmt.Sprintf("%s: status %s, desired: %d, running: %d", serviceName, status, desired, running)
+
+	if status == "ACTIVE" {
+		activeStatus.Println(message)
+	}
+	if status == "DEACTIVATING" {
+		deactivatingStatus.Println(message)
+	}
+	if status == "INACTIVE" {
+		inactiveStatus.Println(message)
+	}
+	if status == "STOPPED" {
+		stoppedStatus.Println(message)
 	}
 }
 
@@ -85,6 +93,3 @@ func newConfig(cluster *string, services []*string) *ecs.DescribeServicesInput {
 	}
 }
 
-func Query(cluster string, queries [][]*string, session *session.Session, results chan string) {
-
-}
