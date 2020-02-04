@@ -23,6 +23,9 @@ func main() {
 	session := awsSession()
 	serviceNames := parseServiceNames(*suffixFlag, *servicesFlag)
 
+	// aws ecs max limit for cluster queries
+	sliceIn(serviceNames, 10)
+
 	ecsService := services.EcsService{
 		Cluster:  clusterFlag,
 		Services: serviceNames,
@@ -65,4 +68,23 @@ func validateFlags(clusterFlag, suffixFlag, servicesFlag string) {
 	if len(servicesFlag) == 0 {
 		log.Fatalln("missing flag: -services")
 	}
+}
+
+func sliceIn(services []*string, sliceSize int) [][]*string {
+	numOfSlices := len(services) / sliceSize
+	var allSlices [][]*string
+	start := 0
+	end := sliceSize
+
+	for i := 0; i < numOfSlices; i++ {
+		slice := services[start:end]
+		allSlices = append(allSlices, slice)
+		start = end
+		end += 10
+	}
+
+	lastSlice := services[numOfSlices*sliceSize:]
+	allSlices = append(allSlices, lastSlice)
+
+	return allSlices
 }
