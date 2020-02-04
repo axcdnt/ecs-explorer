@@ -61,7 +61,7 @@ func (e *EcsService) describe() *ecs.DescribeServicesOutput {
 			case ecs.ErrCodeInvalidParameterException:
 				fmt.Println(ecs.ErrCodeInvalidParameterException, aerr.Error())
 			case ecs.ErrCodeClusterNotFoundException:
-				fmt.Println(ecs.ErrCodeClusterNotFoundException, aerr.Error())
+				log.Fatalln("an error occurred while trying to find cluster: cluster not found")
 			case ecs.ErrCodeAccessDeniedException:
 				// this is possible a frequent error
 				log.Fatalln("an error occurred while trying to access aws: invalid credentials or related")
