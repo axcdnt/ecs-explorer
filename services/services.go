@@ -2,12 +2,11 @@ package services
 
 import (
 	"fmt"
-	"log"
-
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/fatih/color"
+	"log"
 )
 
 var (
@@ -23,8 +22,8 @@ type EcsService struct {
 	Session  *session.Session
 }
 
-// List list services according to configs
-func (e *EcsService) List() {
+// Query writes to a channel all data returned from a service
+func (e *EcsService) Query() {
 	svcs := e.describe().Services
 	for _, svc := range svcs {
 		name := svc.ServiceName
@@ -36,14 +35,14 @@ func (e *EcsService) List() {
 	}
 }
 
-// To be improved
-func prettyPrint(serviceName, status string, desired, running int64) {
+// to be improved
+func prettyPrint(serviceName, status string, desired, running int64){
 	if status == "ACTIVE" && desired == running {
 		runningStatus.Printf("%s: status %s, desired: %d, running: %d\n", serviceName, status, desired, running)
 	} else if status == "ACTIVE" && desired != running || (status == "DRAINING") {
-		establishingStatus.Printf("%s: status %s, desired: %d, running: %d\n", serviceName, status, desired, running)
+		establishingStatus.Sprintf("%s: status %s, desired: %d, running: %d\n", serviceName, status, desired, running)
 	} else if status == "INACTIVE" && desired == running {
-		stoppedStatus.Printf("%s: status %s, desired: %d, running: %d\n", serviceName, status, desired, running)
+		stoppedStatus.Sprintf("%s: status %s, desired: %d, running: %d\n", serviceName, status, desired, running)
 	}
 }
 
@@ -63,7 +62,7 @@ func (e *EcsService) describe() *ecs.DescribeServicesOutput {
 			case ecs.ErrCodeClusterNotFoundException:
 				log.Fatalln("an error occurred while trying to find cluster: cluster not found")
 			case ecs.ErrCodeAccessDeniedException:
-				// this is possible a frequent error
+				// this is possibly a frequent error
 				log.Fatalln("an error occurred while trying to access aws: invalid credentials or related")
 			default:
 				fmt.Println(aerr.Error())
@@ -84,4 +83,8 @@ func newConfig(cluster *string, services []*string) *ecs.DescribeServicesInput {
 		Cluster:  cluster,
 		Services: services,
 	}
+}
+
+func Query(cluster string, queries [][]*string, session *session.Session, results chan string) {
+
 }

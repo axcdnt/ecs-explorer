@@ -3,12 +3,11 @@ package main
 import (
 	"flag"
 	"fmt"
-	"log"
-	"strings"
-
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/axcdnt/ecs-explorer/services"
+	"log"
+	"strings"
 )
 
 func main() {
@@ -22,17 +21,19 @@ func main() {
 
 	session := awsSession()
 	serviceNames := parseServiceNames(*suffixFlag, *servicesFlag)
+	// aws limits the query in 10 services/request
+	queries := sliceIn(serviceNames, 10)
 
-	// aws ecs max limit for cluster queries
-	sliceIn(serviceNames, 10)
+	// to be improved: run the queries in parallel
+	for _, query := range queries {
+		ecsService := services.EcsService{
+			Cluster:  clusterFlag,
+			Services: query,
+			Session:  session,
+		}
 
-	ecsService := services.EcsService{
-		Cluster:  clusterFlag,
-		Services: serviceNames,
-		Session:  session,
+		ecsService.Query()
 	}
-
-	ecsService.List()
 }
 
 func parseServiceNames(suffix, services string) []*string {
@@ -70,6 +71,7 @@ func validateFlags(clusterFlag, suffixFlag, servicesFlag string) {
 	}
 }
 
+// this function makes partitions of a slice based on the desired size
 func sliceIn(services []*string, sliceSize int) [][]*string {
 	numOfSlices := len(services) / sliceSize
 	var allSlices [][]*string
@@ -84,7 +86,10 @@ func sliceIn(services []*string, sliceSize int) [][]*string {
 	}
 
 	lastSlice := services[numOfSlices*sliceSize:]
-	allSlices = append(allSlices, lastSlice)
+	if len(lastSlice) > 0 {
+		// corner case to avoid empty slices
+		allSlices = append(allSlices, lastSlice)
+	}
 
 	return allSlices
 }
