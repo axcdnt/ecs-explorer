@@ -74,15 +74,15 @@ func validateFlags(clusterFlag, suffixFlag, servicesFlag string) {
 // this function makes partitions of a slice based on the desired size
 func partitionIn(services []*string, size int) [][]*string {
 	numOfSlices := len(services) / size
-	var allSlices [][]*string
-	start := 0
-	end := size
+	startRange := 0
+	endRange := size
 
+	var allSlices [][]*string
 	for i := 0; i < numOfSlices; i++ {
-		slice := services[start:end]
+		slice := services[startRange:endRange]
 		allSlices = append(allSlices, slice)
-		start = end
-		end += 10
+		startRange = endRange
+		endRange += 10
 	}
 
 	lastSlice := services[numOfSlices*size:]

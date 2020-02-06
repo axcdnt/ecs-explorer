@@ -7,6 +7,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/fatih/color"
 	"log"
+	"strings"
 )
 
 var (
@@ -14,6 +15,8 @@ var (
 	deactivatingStatus = color.New(color.FgYellow)
 	inactiveStatus     = color.New(color.FgMagenta)
 	stoppedStatus      = color.New(color.FgHiRed)
+	containsErrorStatus = color.New(color.FgHiRed)
+	activeNotRunningStatus = color.New(color.FgHiYellow)
 )
 
 // EcsService represents an ECS service
@@ -41,16 +44,30 @@ func prettyPrint(serviceName, status string, desired, running int64){
 	message := fmt.Sprintf("%s: status %s, desired: %d, running: %d", serviceName, status, desired, running)
 
 	if status == "ACTIVE" {
+		if strings.Contains(status, "CannotPullContainerError") {
+			containsErrorStatus.Println("message")
+			return
+		}
+
+		if desired == 0 && running == 0 {
+			activeNotRunningStatus.Println(message)
+			return
+		}
+
 		activeStatus.Println(message)
+		return
 	}
 	if status == "DEACTIVATING" {
 		deactivatingStatus.Println(message)
+		return
 	}
 	if status == "INACTIVE" {
 		inactiveStatus.Println(message)
+		return
 	}
 	if status == "STOPPED" {
 		stoppedStatus.Println(message)
+		return
 	}
 }
 
