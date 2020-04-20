@@ -2,20 +2,21 @@ package services
 
 import (
 	"fmt"
+	"log"
+	"strings"
+
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/fatih/color"
-	"log"
-	"strings"
 )
 
 var (
-	activeStatus       = color.New(color.FgGreen)
-	deactivatingStatus = color.New(color.FgYellow)
-	inactiveStatus     = color.New(color.FgMagenta)
-	stoppedStatus      = color.New(color.FgHiRed)
-	containsErrorStatus = color.New(color.FgHiRed)
+	activeStatus           = color.New(color.FgGreen)
+	deactivatingStatus     = color.New(color.FgYellow)
+	inactiveStatus         = color.New(color.FgMagenta)
+	stoppedStatus          = color.New(color.FgHiRed)
+	containsErrorStatus    = color.New(color.FgHiRed)
 	activeNotRunningStatus = color.New(color.FgHiYellow)
 )
 
@@ -30,33 +31,30 @@ type EcsService struct {
 func (e *EcsService) Query() {
 	svcs := e.describe().Services
 	for _, svc := range svcs {
-		name := svc.ServiceName
-		status := svc.Status
-		desired := svc.DesiredCount
-		running := svc.RunningCount
-
-		prettyPrint(*name, *status, *desired, *running)
+		prettyPrint(svc)
 	}
 }
 
-// to be improved
-func prettyPrint(serviceName, status string, desired, running int64){
-	message := fmt.Sprintf("%s: status %s, desired: %d, running: %d", serviceName, status, desired, running)
+func prettyPrint(service *ecs.Service) {
+	name := *service.ServiceName
+	status := *service.Status
+	desired := *service.DesiredCount
+	running := *service.RunningCount
 
-	if status == "ACTIVE" {
-		if strings.Contains(status, "CannotPullContainerError") {
-			containsErrorStatus.Println(message)
-			return
-		}
+	// task definition stuff
+	desiredRevision := extractRevision(*service.TaskDefinition)
+	runningRevision := extractRevision(*service.Deployments[0].TaskDefinition)
 
-		if desired == 0 && running == 0 {
-			activeNotRunningStatus.Println(message)
-			return
-		}
+	message := fmt.Sprintf(
+		"%s: status %s, desired: %d, running: %d, desired revision: %s, latest running revision: %s",
+		name, status, desired, running, desiredRevision, runningRevision,
+	)
 
+	if len(service.Deployments) == 1 && isLastRevision(desiredRevision, runningRevision) && desired == running {
 		activeStatus.Println(message)
 		return
 	}
+
 	if status == "DEACTIVATING" {
 		deactivatingStatus.Println(message)
 		return
@@ -69,6 +67,18 @@ func prettyPrint(serviceName, status string, desired, running int64){
 		stoppedStatus.Println(message)
 		return
 	}
+}
+
+func extractRevision(fullName string) string {
+	return fullName[strings.LastIndex(fullName, ":"):]
+}
+
+func isLastRevision(deploymentRevision, desiredLastRevision string) bool {
+	if deploymentRevision != desiredLastRevision {
+		return false
+	}
+
+	return true
 }
 
 func (e *EcsService) describe() *ecs.DescribeServicesOutput {
@@ -109,4 +119,3 @@ func newConfig(cluster *string, services []*string) *ecs.DescribeServicesInput {
 		Services: services,
 	}
 }
-
