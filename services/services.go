@@ -42,15 +42,15 @@ func prettyPrint(service *ecs.Service) {
 	running := *service.RunningCount
 
 	// task definition stuff
-	desiredRevision := extractRevision(*service.TaskDefinition)
-	runningRevision := extractRevision(*service.Deployments[0].TaskDefinition)
+	desiredRevision := taskRevision(*service.TaskDefinition)
+	latestRevision := taskRevision(*service.Deployments[0].TaskDefinition)
 
 	message := fmt.Sprintf(
 		"%s: status %s, desired: %d, running: %d, desired revision: %s, latest running revision: %s",
-		name, status, desired, running, desiredRevision, runningRevision,
+		name, status, desired, running, desiredRevision, latestRevision,
 	)
 
-	if len(service.Deployments) == 1 && isLastRevision(desiredRevision, runningRevision) && desired == running {
+	if len(service.Deployments) == 1 && isLatestRevisionRunning(desiredRevision, latestRevision) && desired == running {
 		activeStatus.Println(message)
 		return
 	}
@@ -69,12 +69,13 @@ func prettyPrint(service *ecs.Service) {
 	}
 }
 
-func extractRevision(fullName string) string {
-	return fullName[strings.LastIndex(fullName, ":"):]
+func taskRevision(taskDefinition string) string {
+	separatorIndex := strings.LastIndex(taskDefinition, ":")
+	return taskDefinition[separatorIndex+1:]
 }
 
-func isLastRevision(deploymentRevision, desiredLastRevision string) bool {
-	if deploymentRevision != desiredLastRevision {
+func isLatestRevisionRunning(desiredRevision, latestRevision string) bool {
+	if desiredRevision != latestRevision {
 		return false
 	}
 
