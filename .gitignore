@@ -26,4 +26,6 @@
 ### JetBrains ###
 .idea/**
 
+ecs-explorer
+
 # End of https://www.gitignore.io/api/go,intellij
