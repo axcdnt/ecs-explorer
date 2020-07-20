@@ -28,14 +28,21 @@ type EcsService struct {
 }
 
 // Query list services according to params
-func (e *EcsService) Query() {
-	svcs := e.describe().Services
-	for _, svc := range svcs {
-		prettyPrint(svc)
+func (e *EcsService) Query(resp chan<- string) {
+	svcDescr := e.describe()
+	for _, failure := range svcDescr.Failures {
+		reportFailure(failure, resp)
+	}
+	for _, svc := range svcDescr.Services {
+		reportStatus(svc, resp)
 	}
 }
 
-func prettyPrint(service *ecs.Service) {
+func reportFailure(failure *ecs.Failure, resp chan<- string) {
+	resp <- containsErrorStatus.Sprintf("Failure on fetch service info. Arn: %s. Reason: %s\n", *failure.Arn, *failure.Reason)
+}
+
+func reportStatus(service *ecs.Service, resp chan<- string) {
 	name := *service.ServiceName
 	status := *service.Status
 	desired := *service.DesiredCount
@@ -51,21 +58,15 @@ func prettyPrint(service *ecs.Service) {
 	)
 
 	if len(service.Deployments) == 1 && isLatestRevisionRunning(desiredRevision, latestRevision) && desired == running {
-		activeStatus.Println(message)
-		return
-	}
-
-	if status == "DEACTIVATING" {
-		deactivatingStatus.Println(message)
-		return
-	}
-	if status == "INACTIVE" {
-		inactiveStatus.Println(message)
-		return
-	}
-	if status == "STOPPED" {
-		stoppedStatus.Println(message)
-		return
+		resp <- activeStatus.Sprintln(message)
+	} else if status == "DEACTIVATING" {
+		resp <- deactivatingStatus.Sprintln(message)
+	} else if status == "INACTIVE" {
+		resp <- inactiveStatus.Sprintln(message)
+	} else if status == "STOPPED" {
+		resp <- stoppedStatus.Sprintln(message)
+	} else {
+		resp <- message
 	}
 }
 
@@ -75,11 +76,7 @@ func taskRevision(taskDefinition string) string {
 }
 
 func isLatestRevisionRunning(desiredRevision, latestRevision string) bool {
-	if desiredRevision != latestRevision {
-		return false
-	}
-
-	return true
+	return desiredRevision == latestRevision
 }
 
 func (e *EcsService) describe() *ecs.DescribeServicesOutput {
