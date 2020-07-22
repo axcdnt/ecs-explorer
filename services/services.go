@@ -66,7 +66,7 @@ func reportStatus(service *ecs.Service, resp chan<- string) {
 	} else if status == "STOPPED" {
 		resp <- stoppedStatus.Sprintln(message)
 	} else {
-		resp <- message
+		resp <- activeNotRunningStatus.Sprintln(message)
 	}
 }
 
