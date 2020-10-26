@@ -14,6 +14,12 @@ I also used the codebase as an instructional code session to explain Go for a gr
 
 ## How to
 
+Build: 
+
+```
+go build . 
+```
+
 Usage:
 
 ```
