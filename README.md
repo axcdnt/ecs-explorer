@@ -17,7 +17,7 @@ I also used the codebase as an instructional code session to explain Go for a gr
 Build: 
 
 ```
-go build -o ecs-explorer main.go 
+go build . 
 ```
 
 Usage:
